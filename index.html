@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>冬眠單字 語音作業</title>
+<style>
+:root { --primary: #1a73e8; --primary-dark: #0d47a1; --bg: #eef2f6; --card-bg: #ffffff; --text-dark: #1f2937; --text-muted: #6b7280; --success: #16a34a; --danger: #dc2626; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text-dark); margin: 0; padding: 20px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+.presentation-container { width: 90%; max-width: 800px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 30px 40px; position: relative; min-height: 620px; display: flex; flex-direction: column; justify-content: space-between; }
+.page { display: none; flex-direction: column; justify-content: space-between; flex-grow: 1; animation: fadeIn 0.3s ease-in-out; }
+.page.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 12px; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
+.student-tag { font-size: 15px; font-weight: bold; color: var(--primary-dark); background: #e8f0fe; padding: 4px 12px; border-radius: 12px; }
+.page-indicator { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+.nav-buttons-group { display: flex; gap: 8px; align-items: center; }
+.home-nav-btn { background-color: #f1f5f9; color: var(--primary-dark); border: 1px solid #cbd5e1; padding: 5px 12px; border-radius: 15px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.home-nav-btn:hover { background-color: #e2e8f0; }
+.welcome-screen { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 400px; gap: 16px; }
+.lexile-badge { background: #dbeafe; color: #1e40af; font-size: 14px; font-weight: 700; padding: 6px 16px; border-radius: 20px; letter-spacing: 0.5px; border: 1px solid #bfdbfe; }
+.welcome-title { font-size: 26px; color: var(--primary-dark); font-weight: 800; line-height: 1.3; }
+.welcome-input { padding: 12px 20px; font-size: 18px; border: 2px solid #cbd5e1; border-radius: 12px; outline: none; text-align: center; width: 260px; transition: 0.2s; }
+.welcome-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
+.btn-group { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+.start-btn { background-color: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 25px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(26,115,232,0.3); display: inline-flex; align-items: center; justify-content: center; }
+.listen-btn { background-color: #f1f5f9; color: var(--primary-dark); border: 2px solid var(--primary); padding: 12px 20px; border-radius: 25px; font-size: 15px; font-weight: bold; cursor: pointer; }
+.quiz-btn { background-color: #fef3c7; color: #b45309; border: 2px solid #f59e0b; padding: 12px 20px; border-radius: 25px; font-size: 15px; font-weight: bold; cursor: pointer; }
+.listen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto; padding: 10px; margin-top: 10px; }
+.listen-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; }
+.listen-card:hover { border-color: var(--primary); background: #e8f0fe; transform: translateY(-2px); }
+.listen-word { font-size: 14px; font-weight: bold; color: var(--primary-dark); }
+.listen-zh { font-size: 11px; color: var(--text-muted); }
+.word-section { text-align: center; margin: 5px 0 12px 0; }
+.icon-large { font-size: 48px; margin-bottom: 5px; display: inline-block; }
+.word-title { font-size: 30px; font-weight: 800; color: var(--primary-dark); margin: 5px 0; }
+.word-translation { font-size: 18px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; }
+.word-audio-btn { background-color: var(--primary); color: white; border: none; padding: 8px 20px; border-radius: 25px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.sentence-container { background-color: #f8fafc; border-left: 6px solid var(--primary); border-radius: 12px; padding: 14px 18px; margin-top: 10px; }
+.sentence-en { font-size: 15px; line-height: 1.5; color: #0f172a; font-weight: 500; margin-bottom: 6px; }
+.sentence-zh { font-size: 13px; color: #475569; line-height: 1.4; }
+.highlight { color: var(--primary); font-weight: 700; text-decoration: underline; }
+.sentence-audio-area { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
+.btn-subtle { background-color: #e8f0fe; color: var(--primary); border: none; padding: 8px 18px; border-radius: 30px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.record-box { margin-top: 12px; width: 100%; background: #f0fdf4; border: 2px solid #bbf7d0; padding: 12px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.rec-status { font-size: 13px; font-weight: bold; color: var(--danger); display: none; }
+.rec-status.active { display: inline-block; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+.record-actions { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; }
+.record-action-btn { background-color: var(--success); color: white; border: none; padding: 10px 22px; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; max-width: 280px; }
+.record-action-btn.recording { background-color: var(--danger); }
+.audio-preview { width: 100%; max-width: 350px; height: 30px; margin-top: 2px; display: none; }
+.upload-status-text { font-size: 12px; font-weight: 600; color: #047857; white-space: pre-line; text-align: center; }
+.nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 2px solid #f3f4f6; }
+.nav-btn { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.nav-btn:disabled { background-color: #d1d5db; cursor: not-allowed; }
+.keyboard-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 10px; }
+.quiz-container { display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 20px; }
+.quiz-word { font-size: 36px; font-weight: bold; color: var(--primary-dark); }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 500px; }
+.option-btn { background: #f8fafc; border: 2px solid #cbd5e1; padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.2s; color: var(--text-dark); }
+.option-btn:hover { border-color: var(--primary); background: #e8f0fe; }
+.option-btn.wrong { border-color: var(--danger) !important; background-color: #fef2f2 !important; color: var(--danger) !important; font-weight: bold; }
+.option-btn.correct { border-color: var(--success) !important; background-color: #f0fdf4 !important; color: var(--success) !important; font-weight: bold; }
+.quiz-result { text-align: center; display: none; flex-direction: column; gap: 20px; align-items: center; }
+.score-display { font-size: 32px; font-weight: 800; color: var(--primary-dark); }
+.quiz-review { font-size: 13px; color: #475569; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 14px; max-width: 500px; white-space: pre-line; text-align: left; }
+@media (max-width: 480px){ .presentation-container{ padding: 20px 16px; } .options-grid{ grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="presentation-container">
+<div class="page active" id="welcome-page">
+<div class="welcome-screen">
+<div class="lexile-badge">📚 冬眠單字・15 個單字</div>
+<div class="welcome-title">Hibernation 單字作業<br><span style="font-size:16px; color: var(--text-muted); font-weight: normal;">單字卡朗讀與雲端自動上傳系統</span></div>
+<input type="text" id="studentNameInput" class="welcome-input" placeholder="請輸入你的姓名" autofocus>
+<div class="btn-group">
+<button class="listen-btn" onclick="checkNameAndRun(openListeningMode)">🎧 聽力練習</button>
+<button class="start-btn" onclick="checkNameAndRun(startPractice)">🎤 開始錄音作業</button>
+<button class="quiz-btn" onclick="checkNameAndRun(startQuiz)">📝 單字測驗</button>
+</div>
+</div>
+</div>
+
+<div class="page" id="listening-page">
+<div>
+<div class="top-bar">
+<span class="student-tag">🎧 聽力自主練習區</span>
+<div class="nav-buttons-group"><button class="home-nav-btn" onclick="goHome()">🏠 首頁</button></div>
+</div>
+<div class="listen-grid" id="listenGrid"></div>
+</div>
+<div class="sentence-audio-area">
+<button class="start-btn" onclick="startPractice()">準備好了，開始錄音作業 🎤</button>
+</div>
+</div>
+
+<div class="page" id="card-page">
+<div>
+<div class="top-bar">
+<span class="student-tag" id="displayStudentName">學生：--</span>
+<div class="nav-buttons-group"><button class="home-nav-btn" onclick="goHome()">🏠 首頁</button></div>
+</div>
+<div class="word-section">
+<div class="icon-large" id="cardIcon">😴</div>
+<div class="word-title" id="cardWord">hibernation</div>
+<div class="word-translation" id="cardTranslation">冬眠</div>
+<button class="word-audio-btn" onclick="speakCurrentWord()">🔊 朗讀單字</button>
+</div>
+<div class="sentence-container">
+<div class="sentence-en" id="cardSentenceEn">...</div>
+<div class="sentence-zh" id="cardSentenceZh">...</div>
+</div>
+</div>
+<div class="sentence-audio-area">
+<button class="btn-subtle" onclick="speakCurrentSentence()">🔊 朗讀課文例句</button>
+</div>
+<div class="record-box">
+<div class="rec-status" id="recStatus">🔴 正在錄音中...（唸完後點擊停止即會自動上傳）</div>
+<div class="record-actions">
+<button class="record-action-btn" id="recordBtn" onclick="toggleGlobalRecording()">🎤 開始錄音</button>
+</div>
+<div class="upload-status-text" id="uploadStatusText"></div>
+<audio class="audio-preview" id="audioPreview" controls></audio>
+</div>
+<div class="nav-controls">
+<button class="nav-btn" id="prevBtn" onclick="changePage(-1)">← 上一個</button>
+<span style="font-weight: bold; color: var(--text-muted);" id="pageCounter">1 / 15</span>
+<button class="nav-btn" id="nextBtn" onclick="changePage(1)">下一個 →</button>
+</div>
+</div>
+
+<div class="page" id="quiz-page">
+<div>
+<div class="top-bar">
+<span class="student-tag" id="quizStudentName">學生：--</span>
+<div class="nav-buttons-group">
+<span class="page-indicator" id="quizProgress" style="margin-right:5px;">第 1 / 15 題</span>
+<button class="home-nav-btn" onclick="goHome()">🏠 首頁</button>
+</div>
+</div>
+<div class="quiz-container" id="quizBox">
+<div class="quiz-word" id="quizWord">hibernation</div>
+<button class="btn-subtle" onclick="speakQuizWord()">🔊 發音</button>
+<div class="options-grid" id="optionsGrid"></div>
+</div>
+<div class="quiz-result" id="quizResultBox">
+<div style="font-size: 60px;">🏆</div>
+<h2>測驗完成！</h2>
+<div class="score-display" id="finalScore">答對 0 / 15 題</div>
+<div class="quiz-review" id="quizReview"></div>
+<div class="upload-status-text" id="quizUploadStatus" style="font-size: 15px;">⏳ 正在自動上傳成績至雲端...</div>
+<div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top: 10px;">
+<button class="listen-btn" onclick="startQuiz()">🔄 再測驗一次</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="keyboard-hint" id="keyboardHint" style="display:none;">💡 提示：切換頁面時會<b>自動發音單字</b>，亦可使用鍵盤 <b>← 左右方向鍵 →</b> 切換頁面</div>
+
+<script>
+// ===== 設定區（部署後只改這 5 行）=====
+const scriptURL = "https://script.google.com/macros/s/AKfycbzZQYCps9G5xQsLmZsWr6XzJ-3yxCabTvNGDAYaJJObZChkOimRF_ZtEmo6TV6TQeW7pg/exec";
+const TOPIC = "冬眠單字";
+const REC_SHEET = "錄音回傳";
+const QUIZ_SHEET = "測驗成績";
+const DRIVE_FOLDER = "";
+// ===== 設定區結束 =====
+
+const cardsData = [
+{ word: "hibernation", zh: "冬眠", icon: "😴", enSent: "<span class='highlight'>Hibernation</span> is like a deep sleep.", zhSent: "冬眠就像深深的睡眠。", rawSent: "Hibernation is like a deep sleep." },
+{ word: "trouble", zh: "麻煩；困擾", icon: "😟", enSent: "I have <span class='highlight'>trouble</span> sleeping at night.", zhSent: "我晚上睡覺有困難。", rawSent: "I have trouble sleeping at night." },
+{ word: "sound sleep", zh: "沉睡；熟睡", icon: "💤", enSent: "The baby is in a <span class='highlight'>sound sleep</span>.", zhSent: "寶寶正在沉沉地睡著。", rawSent: "The baby is in a sound sleep." },
+{ word: "heart beat", zh: "心跳", icon: "💓", enSent: "I can hear my <span class='highlight'>heart beat</span>.", zhSent: "我聽得到我的心跳。", rawSent: "I can hear my heart beat." },
+{ word: "stay alive", zh: "存活；活下去", icon: "💪", enSent: "We need food and water to <span class='highlight'>stay alive</span>.", zhSent: "我們需要食物和水才能活下去。", rawSent: "We need food and water to stay alive." },
+{ word: "store", zh: "儲存；貯藏", icon: "📦", enSent: "Squirrels <span class='highlight'>store</span> nuts for winter.", zhSent: "松鼠為冬天貯藏堅果。", rawSent: "Squirrels store nuts for winter." },
+{ word: "predators", zh: "掠食者；捕食者", icon: "🦊", enSent: "Foxes are <span class='highlight'>predators</span> of rabbits.", zhSent: "狐狸是兔子的掠食者。", rawSent: "Foxes are predators of rabbits." },
+{ word: "burrows", zh: "洞穴；地洞", icon: "🕳️", enSent: "Rabbits live in <span class='highlight'>burrows</span>.", zhSent: "兔子住在地洞裡。", rawSent: "Rabbits live in burrows." },
+{ word: "ponds", zh: "池塘", icon: "🐸", enSent: "Frogs live in the <span class='highlight'>ponds</span>.", zhSent: "青蛙住在池塘裡。", rawSent: "Frogs live in the ponds." },
+{ word: "hamsters", zh: "倉鼠", icon: "🐹", enSent: "My <span class='highlight'>hamsters</span> are cute and small.", zhSent: "我的倉鼠又可愛又小。", rawSent: "My hamsters are cute and small." },
+{ word: "hedgehogs", zh: "刺蝟", icon: "🦔", enSent: "<span class='highlight'>Hedgehogs</span> have sharp spines.", zhSent: "刺蝟有尖尖的刺。", rawSent: "Hedgehogs have sharp spines." },
+{ word: "badgers", zh: "獾", icon: "🦡", enSent: "<span class='highlight'>Badgers</span> dig holes to sleep in.", zhSent: "獾挖洞來睡覺。", rawSent: "Badgers dig holes to sleep in." },
+{ word: "lungs", zh: "肺", icon: "🫁", enSent: "We breathe with our <span class='highlight'>lungs</span>.", zhSent: "我們用肺呼吸。", rawSent: "We breathe with our lungs." },
+{ word: "bury", zh: "埋葬；掩埋", icon: "🐶", enSent: "Dogs <span class='highlight'>bury</span> bones in the ground.", zhSent: "狗把骨頭埋在土裡。", rawSent: "Dogs bury bones in the ground." },
+{ word: "claws", zh: "爪子；利爪", icon: "🐾", enSent: "Cats have sharp <span class='highlight'>claws</span>.", zhSent: "貓有鋒利的爪子。", rawSent: "Cats have sharp claws." }
+];
+
+let currentIndex = 0;
+let studentName = localStorage.getItem("eng_name") || "";
+let uploadCount = 0;
+if (studentName) document.getElementById('studentNameInput').value = studentName;
+
+let audioStream = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let quizIndex = 0;
+let quizScore = 0;
+let quizList = [];
+let quizAns = [];
+let canAnswer = true;
+
+function checkNameAndRun(callback) {
+const nameInput = document.getElementById('studentNameInput').value.trim();
+if (!nameInput && !studentName) { alert('請先輸入學生姓名喔！'); return; }
+if (nameInput) { studentName = nameInput; localStorage.setItem("eng_name", studentName); }
+callback();
+}
+function goHome() {
+switchPage('welcome-page');
+document.getElementById('keyboardHint').style.display = 'none';
+stopSpeak();
+if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); }
+}
+function openListeningMode() {
+const grid = document.getElementById('listenGrid');
+grid.innerHTML = '';
+cardsData.forEach(item => {
+const card = document.createElement('div');
+card.className = 'listen-card';
+card.innerHTML = '<div style="font-size:20px;">' + item.icon + '</div><div class="listen-word">' + item.word + '</div><div class="listen-zh">' + item.zh + '</div>';
+card.onclick = () => speak(item.word + ". " + item.rawSent);
+grid.appendChild(card);
+});
+switchPage('listening-page');
+}
+async function startPractice() {
+try {
+if (!audioStream) { audioStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+} catch (err) { alert('無法獲取麥克風權限，請確認用 HTTPS（GitHub Pages）開啟並允許麥克風！'); return; }
+switchPage('card-page');
+document.getElementById('keyboardHint').style.display = 'block';
+document.getElementById('displayStudentName').innerText = '學生：' + studentName;
+loadCard(0, true);
+}
+function switchPage(pageId) {
+document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+document.getElementById(pageId).classList.add('active');
+window.scrollTo(0,0);
+}
+function loadCard(index, autoSpeak) {
+currentIndex = index;
+const data = cardsData[currentIndex];
+document.getElementById('cardIcon').innerText = data.icon;
+document.getElementById('cardWord').innerText = data.word;
+document.getElementById('cardTranslation').innerText = data.zh;
+document.getElementById('cardSentenceEn').innerHTML = data.enSent;
+document.getElementById('cardSentenceZh').innerText = data.zhSent;
+document.getElementById('pageCounter').innerText = (currentIndex + 1) + ' / ' + cardsData.length;
+document.getElementById('prevBtn').disabled = (currentIndex === 0);
+document.getElementById('nextBtn').disabled = (currentIndex === cardsData.length - 1);
+if (autoSpeak) speak(data.word);
+}
+function changePage(direction) {
+let newIndex = currentIndex + direction;
+if (newIndex >= 0 && newIndex < cardsData.length) loadCard(newIndex, true);
+}
+function speakCurrentWord() { speak(cardsData[currentIndex].word); }
+function speakCurrentSentence() { speak(cardsData[currentIndex].rawSent); }
+function speak(text) {
+if ('speechSynthesis' in window) {
+window.speechSynthesis.cancel();
+const u = new SpeechSynthesisUtterance(text);
+u.lang = 'en-US'; u.rate = 0.9;
+window.speechSynthesis.speak(u);
+}
+}
+function stopSpeak(){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+function toggleGlobalRecording() {
+const recordBtn = document.getElementById('recordBtn');
+const preview = document.getElementById('audioPreview');
+const recStatus = document.getElementById('recStatus');
+const statusText = document.getElementById('uploadStatusText');
+if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+audioChunks = [];
+try { mediaRecorder = new MediaRecorder(audioStream); }
+catch(e){ alert('此裝置不支援錄音'); return; }
+mediaRecorder.ondataavailable = e => { if(e.data.size>0) audioChunks.push(e.data); };
+mediaRecorder.onstop = () => {
+const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+if (blob.size < 500) { statusText.innerText = '⚠ 錄音太短或無聲音，請重錄一次。'; return; }
+preview.src = URL.createObjectURL(blob);
+preview.style.display = 'block';
+autoUploadGlobalAudio(blob);
+};
+mediaRecorder.start();
+recordBtn.innerText = '⏹️ 停止並自動上傳';
+recordBtn.classList.add('recording');
+recStatus.classList.add('active');
+preview.style.display = 'none';
+statusText.innerText = '';
+} else {
+mediaRecorder.stop();
+recordBtn.innerText = '🎤 開始錄音';
+recordBtn.classList.remove('recording');
+recStatus.classList.remove('active');
+statusText.innerText = '⏳ 錄音結束，處理＋上傳中…';
+}
+}
+function autoUploadGlobalAudio(blob) {
+const statusText = document.getElementById('uploadStatusText');
+if (!scriptURL) { statusText.innerText = '⚠ 尚未設定 scriptURL，無法上傳。'; return; }
+statusText.innerText = '⏫ 上傳中…（' + Math.round(blob.size/1024) + ' KB）請稍候';
+uploadCount++;
+const data = cardsData[currentIndex];
+const fileName = studentName + '_' + data.word.replace(/\s+/g,'_') + '_' + Date.now() + '.webm';
+const reader = new FileReader();
+reader.readAsDataURL(blob);
+reader.onloadend = function() {
+const base64Audio = reader.result.split(',')[1];
+fetch(scriptURL, {
+method: 'POST',
+headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+body: JSON.stringify({ action: 'record', topic: TOPIC, sheet: REC_SHEET, folder: DRIVE_FOLDER, name: studentName, word: data.word, mime: blob.type || 'audio/webm', filename: fileName, audioBase64: base64Audio })
+})
+.then(r => r.text()).then(t => {
+let j = {}; try { j = JSON.parse(t); } catch(e){ throw new Error('伺服器回應異常：' + t.slice(0,200)); }
+if (j.ok) statusText.innerText = '✅ 「' + data.word + '」已自動上傳成功！可按下一個繼續。';
+else throw new Error(j.error || '上傳失敗');
+})
+.catch(err => { statusText.innerText = '❌ 上傳失敗：' + err.message; });
+};
+}
+function startQuiz() {
+if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.stop(); }
+stopSpeak();
+quizIndex = 0; quizScore = 0; quizAns = [];
+quizList = [...cardsData].sort(() => Math.random() - 0.5);
+switchPage('quiz-page');
+document.getElementById('quizStudentName').innerText = '學生：' + studentName;
+document.getElementById('quizBox').style.display = 'flex';
+document.getElementById('quizResultBox').style.display = 'none';
+loadQuizQuestion();
+}
+function loadQuizQuestion() {
+canAnswer = true;
+const currentQ = quizList[quizIndex];
+document.getElementById('quizProgress').innerText = '第 ' + (quizIndex + 1) + ' / ' + quizList.length + ' 題';
+document.getElementById('quizWord').innerText = currentQ.word;
+speak(currentQ.word);
+let options = [currentQ.zh];
+let otherZhs = cardsData.map(c => c.zh).filter(z => z !== currentQ.zh).sort(() => Math.random() - 0.5);
+options.push(...otherZhs.slice(0, 3));
+options.sort(() => Math.random() - 0.5);
+const optionsGrid = document.getElementById('optionsGrid');
+optionsGrid.innerHTML = '';
+options.forEach(optText => {
+const btn = document.createElement('button');
+btn.className = 'option-btn';
+btn.innerText = optText;
+btn.onclick = () => checkAnswer(btn, optText, currentQ.zh, currentQ.word);
+optionsGrid.appendChild(btn);
+});
+}
+function speakQuizWord() { speak(quizList[quizIndex].word); }
+function checkAnswer(selectedBtn, selectedText, correctText, enWord) {
+if (!canAnswer) return;
+canAnswer = false;
+quizAns.push({ en: enWord, correct: correctText, picked: selectedText, hit: (selectedText === correctText) });
+if (selectedText === correctText) { selectedBtn.classList.add('correct'); quizScore++; }
+else {
+selectedBtn.classList.add('wrong');
+document.querySelectorAll('.option-btn').forEach(btn => { if (btn.innerText === correctText) btn.classList.add('correct'); });
+}
+setTimeout(() => {
+quizIndex++;
+if (quizIndex < quizList.length) { loadQuizQuestion(); }
+else { showQuizResult(); }
+}, 900);
+}
+function showQuizResult() {
+document.getElementById('quizBox').style.display = 'none';
+document.getElementById('quizResultBox').style.display = 'flex';
+const total = quizList.length;
+const score = Math.round(quizScore / total * 100);
+document.getElementById('finalScore').innerText = score + ' 分・答對 ' + quizScore + ' / ' + total + ' 題';
+const wrong = quizAns.filter(a => !a.hit);
+document.getElementById('quizReview').innerText = wrong.length === 0 ? '🎉 全對！太棒了！' : '需加強：\n' + wrong.map(a => '・' + a.en + '（正解：' + a.correct + '，你選：' + a.picked + '）').join('\n');
+const uploadStatus = document.getElementById('quizUploadStatus');
+if (!scriptURL) { uploadStatus.innerText = '⚠ 尚未設定 scriptURL，成績未上傳。'; return; }
+uploadStatus.innerText = '⏫ 成績上傳中…';
+fetch(scriptURL, {
+method: 'POST',
+headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+body: JSON.stringify({ action: 'quiz', topic: TOPIC, sheet: QUIZ_SHEET, name: studentName, score: score, total: total, correct: quizScore, wrongWords: wrong.map(a => a.en).join(', '), detail: quizAns.map(a => a.en + '|選:' + a.picked + '|' + (a.hit ? '○' : '✕')).join('; ') })
+})
+.then(r => r.text()).then(t => {
+let j = {}; try { j = JSON.parse(t); } catch(e){ throw new Error('伺服器回應異常：' + t.slice(0,200)); }
+if (j.ok) uploadStatus.innerText = '✅ 成績已自動上傳給老師！';
+else throw new Error(j.error || '上傳失敗');
+})
+.catch(err => { uploadStatus.innerText = '❌ 上傳失敗：' + err.message; });
+}
+document.addEventListener('keydown', function(e) {
+if (!document.getElementById('card-page').classList.contains('active')) return;
+if (e.key === 'ArrowLeft') changePage(-1);
+if (e.key === 'ArrowRight') changePage(1);
+});
+</script>
+</body>
+</html>
